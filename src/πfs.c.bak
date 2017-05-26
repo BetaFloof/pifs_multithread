@@ -202,25 +202,8 @@ static int pifs_write(const char *path, const char *buf, size_t count,
     }
     wbuf_fill = 0;
 
-<<<<<<< HEAD
-  for (size_t i = 0; i < count; i++) {
-    ret = write(info->fh, &bytesIndices[(unsigned char)*buf], sizeof(unsigned short));
-=======
-    short index;
-    for (index = 0; index < SHRT_MAX; index++) {
-      char ch = get_byte(index);
-      for (k = 0; k < wbuf_len; k++) {
-        if (wbuf[k] < 0 && buf[k] == ch) {
-          wbuf[k] = index;
-          wbuf_fill++;
-        }
-      }
-      if (wbuf_fill == wbuf_len) {
-        break;
-      }
-    }
-    ret = write(info->fh, wbuf, sizeof(index) * wbuf_len);
->>>>>>> f5b3bed6e967caf11a3c30a5d8a43cb941fd479b
+  for (size_t i = 0; i < SHRT_MAX; i++) {
+    ret = write(info->fh, &bytesIndices[(unsigned char)*wbuf], sizeof(unsigned short) * wbuf_len);
     if (ret == -1) {
       return -errno;
     }

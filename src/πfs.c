@@ -209,6 +209,7 @@ static int pifs_write(const char *path, const char *buf, size_t count,
     }
     buf += wbuf_len;
   }
+  }
 
   return count;
 }
