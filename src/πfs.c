@@ -187,7 +187,7 @@ static int pifs_write(const char *path, const char *buf, size_t count,
     return -errno;
   }
   short wbuf[WBUF_SIZE];
-  int wbuf_len, wbuf_fill;
+  int wbuf_len;
 
   for (size_t i = 0; i < count; i += WBUF_SIZE) {
     if ((count-i) > WBUF_SIZE) {
@@ -200,7 +200,6 @@ static int pifs_write(const char *path, const char *buf, size_t count,
     for (k = 0; k < wbuf_len; k++) {
       wbuf[k] = -1;
     }
-    wbuf_fill = 0;
 
   for (size_t i = 0; i < SHRT_MAX; i++) {
     ret = write(info->fh, &bytesIndices[(unsigned char)*wbuf], sizeof(unsigned short) * wbuf_len);
