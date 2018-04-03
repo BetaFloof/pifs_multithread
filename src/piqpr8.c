@@ -17,35 +17,7 @@
 #include <math.h>
 #include <limits.h>
 #include <pthread.h>
-
-static double expm (double p, double ak, int i, double pt)
-
-/*  expm = 16^p mod ak.  This routine uses the left-to-right binary 
-    exponentiation scheme. */
-
-{
-  int j;
-  double r;
-
-  r = 1.;
-
-/*  Perform binary exponentiation algorithm modulo ak. */
-
-  for (j = 1; j <= i; j++){
-    if (p >= pt){
-      r = 16. * r;
-      r = r - (int) (r / ak) * ak;
-      p = p - pt;
-    }
-    pt = 0.5 * pt;
-    if (pt >= 1.){
-      r = r * r;
-      r = r - (int) (r / ak) * ak;
-    }
-  }
-
-  return r;
-}
+#include <alloca.h>
 
 static double expmm (double p, double ak)
 
@@ -94,45 +66,6 @@ static double expmm (double p, double ak)
   }
 
   return r;
-}
-
-static double series (int m, int id, int i, double pt)
-
-/*  This routine evaluates the series  sum_k 16^(id-k)/(8*k+m) 
-    using the modular exponentiation technique. */
-
-{
-  int k;
-  double ak, p, s, t;
-#define eps 1e-17
-
-  s = 0.;
-
-/*  Sum the series up to id. */
-
-  for (k = 0; k < id; k++){
-    ak = 8 * k + m;
-    if ((int) ak == 1) continue;
-    p = id - k;
-    if(! ((int) pt & (int) p)){
-      i--;
-      pt = 1 << (i - 1);
-    }
-    t = expm (p, ak, i, pt);
-    s = s + t / ak;
-    s = s - (int) s;
-  }
-
-/*  Compute a few terms where k >= id. */
-
-  for (k = id; k <= id + 100; k++){
-    ak = 8 * k + m;
-    t = pow (16., (double) (id - k)) / ak;
-    if (t < eps) break;
-    s = s + t;
-    s = s - (int) s;
-  }
-  return s;
 }
 
 static double seriesm (int m, int id)
