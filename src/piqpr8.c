@@ -37,14 +37,22 @@ static double expmm (double p, double ak)
     tp1 = 1;
     tp[0] = 1.;
 
-    for (i = 1; i < ntp; i++) tp[i] = 2. * tp[i-1];
+    for (i = 1; i < ntp; i++) {
+        tp[i] = 2. * tp[i-1];
+    }
   }
 
-  if (ak == 1.) return 0.;
+  if (ak == 1.) {
+      return 0.;
+  }
 
 /*  Find the greatest power of two less than or equal to p. */
 
-  for (i = 0; i < ntp; i++) if (tp[i] > p) break;
+  for (i = 0; i < ntp; i++) {
+      if (tp[i] > p) {
+          break;
+      }
+  }
 
   pt = tp[i-1];
   p1 = p;
@@ -52,14 +60,15 @@ static double expmm (double p, double ak)
 
 /*  Perform binary exponentiation algorithm modulo ak. */
 
-  for (j = 1; j <= i; j++){
-    if (p1 >= pt){
+  for (j = 1; j <= i; j++) {
+    if (p1 >= pt) {
       r = 16. * r;
       r = r - (int) (r / ak) * ak;
       p1 = p1 - pt;
     }
+
     pt = 0.5 * pt;
-    if (pt >= 1.){
+    if (pt >= 1.) {
       r = r * r;
       r = r - (int) (r / ak) * ak;
     }
@@ -82,7 +91,7 @@ static double seriesm (int m, int id)
 
 /*  Sum the series up to id. */
 
-  for (k = 0; k < id; k++){
+  for (k = 0; k < id; k++) {
     ak = 8 * k + m;
     p = id - k;
     t = expmm (p, ak);
@@ -92,10 +101,14 @@ static double seriesm (int m, int id)
 
 /*  Compute a few terms where k >= id. */
 
-  for (k = id; k <= id + 100; k++){
+  for (k = id; k <= id + 100; k++) {
     ak = 8 * k + m;
     t = pow (16., (double) (id - k)) / ak;
-    if (t < eps) break;
+
+    if (t < eps) {
+        break;
+    }
+
     s = s + t;
     s = s - (int) s;
   }
