@@ -19,100 +19,94 @@
 #include <pthread.h>
 #include <alloca.h>
 
+/*  expm = 16^p mod ak.  This routine uses the left-to-right binary exponentiation scheme. */
 static double expmm (double p, double ak)
-
-/*  expm = 16^p mod ak.  This routine uses the left-to-right binary 
-    exponentiation scheme. */
-
 {
-  int i, j;
-  double p1, pt, r;
+    int i, j;
+    double p1, pt, r;
 #define ntp 25
-  static double tp[ntp];
-  static int tp1 = 0;
+    static double tp[ntp];
+    static int tp1 = 0;
 
-/*  If this is the first call to expm, fill the power of two table tp. */
+    if (ak == 1.) {
+        return 0.;
+    }
 
-  if (tp1 == 0) {
+    /*  If this is the first call to expm, fill the power of two table tp. */
+
+    if (tp1 == 0) {
     tp1 = 1;
     tp[0] = 1.;
 
-    for (i = 1; i < ntp; i++) {
-        tp[i] = 2. * tp[i-1];
-    }
-  }
-
-  if (ak == 1.) {
-      return 0.;
-  }
-
-/*  Find the greatest power of two less than or equal to p. */
-
-  for (i = 0; i < ntp; i++) {
-      if (tp[i] > p) {
-          break;
-      }
-  }
-
-  pt = tp[i-1];
-  p1 = p;
-  r = 1.;
-
-/*  Perform binary exponentiation algorithm modulo ak. */
-
-  for (j = 1; j <= i; j++) {
-    if (p1 >= pt) {
-      r = 16. * r;
-      r = r - (int) (r / ak) * ak;
-      p1 = p1 - pt;
+        for (i = 1; i < ntp; i++) {
+            tp[i] = 2. * tp[i-1]; // Multiply the previous value (tp[i-1]) by 2
+        }
     }
 
-    pt = 0.5 * pt;
-    if (pt >= 1.) {
-      r = r * r;
-      r = r - (int) (r / ak) * ak;
-    }
-  }
+    /*  Find the greatest power of two less than or equal to p. */
 
-  return r;
+    for (i = 0; i < ntp; i++) {
+        if (tp[i] > p) {
+            break;
+        }
+    }
+
+    pt = tp[i-1];
+    p1 = p;
+    r = 1.;
+
+    /*  Perform binary exponentiation algorithm modulo ak. */
+
+    for (j = 1; j <= i; j++) {
+        if (p1 >= pt) {
+            r = 16. * r;
+            r = r - (int) (r / ak) * ak;
+            p1 = p1 - pt;
+        }
+
+        pt = 0.5 * pt;
+        if (pt >= 1.) {
+            r = r * r;
+            r = r - (int) (r / ak) * ak;
+        }
+    }
+
+    return r;
 }
 
+/*  This routine evaluates the series  sum_k 16^(id-k)/(8*k+m) using the modular exponentiation technique. */
 static double seriesm (int m, int id)
-
-/*  This routine evaluates the series  sum_k 16^(id-k)/(8*k+m) 
-    using the modular exponentiation technique. */
-
 {
-  int k;
-  double ak, p, s, t;
+    int k;
+    double ak, p, s, t;
 #define eps 1e-17
 
-  s = 0.;
+    s = 0.;
 
-/*  Sum the series up to id. */
+    /*  Sum the series up to id. */
 
-  for (k = 0; k < id; k++) {
-    ak = 8 * k + m;
-    p = id - k;
-    t = expmm (p, ak);
-    s = s + t / ak;
-    s = s - (int) s;
-  }
-
-/*  Compute a few terms where k >= id. */
-
-  for (k = id; k <= id + 100; k++) {
-    ak = 8 * k + m;
-    t = pow (16., (double) (id - k)) / ak;
-
-    if (t < eps) {
-        break;
+    for (k = 0; k < id; k++) {
+        ak = 8 * k + m;
+        p = id - k;
+        t = expmm (p, ak);
+        s = s + t / ak;
+        s = s - (int) s;
     }
 
-    s = s + t;
-    s = s - (int) s;
-  }
-  return s;
+    /*  Compute a few terms where k >= id. */
+
+    for (k = id; k <= id + 100; k++) {
+        ak = 8 * k + m;
+        t = pow (16., (double) (id - k)) / ak;
+
+        if (t < eps) {
+            break;
+        }
+
+        s = s + t;
+        s = s - (int) s;
+    }
+    return s;
 }
 
 struct data {
