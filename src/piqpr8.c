@@ -35,8 +35,8 @@ static double expmm (double p, double ak)
     /*  If this is the first call to expm, fill the power of two table tp. */
 
     if (tp1 == 0) {
-    tp1 = 1;
-    tp[0] = 1.;
+        tp1 = 1;
+        tp[0] = 1.;
 
         for (i = 1; i < ntp; i++) {
             tp[i] = 2. * tp[i-1]; // Multiply the previous value (tp[i-1]) by 2
@@ -139,7 +139,6 @@ void ts4(struct data* data) {
 
 unsigned char get_byte(int id)
 {
-
     struct data* data = alloca(sizeof(struct data));
     data->id = id;
 
